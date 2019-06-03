@@ -1,0 +1,6 @@
+<launch>
+
+    <!-- Run our interface with the 3DPrinter -->
+    <node pkg="firos" type="sender.py" name="firos_sender" output="screen"/>
+
+</launch>

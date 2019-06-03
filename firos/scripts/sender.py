@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Apr  4 12:38:54 2019
-
-@author:
-"""
+#!/usr/bin/env python
 
 import sys
 import os
@@ -12,11 +7,8 @@ import csv
 import requests
 import json
 import rospy
-#from firos.msg import printer3d
 from octo_ros.msg import PrinterState
-#from fiware import OrionClient
 
-import json
 import requests
 
 head = {"Content-Type": "application/json"}
@@ -81,9 +73,7 @@ class OrionClient:
         print(response.text)
 
 def callback(data):
-    #rospy.loginfo(rospy.get_caller_id() + "I heard %s", event.data)
     msg = dict()
-    #msg["timestamp"]={"value": int(data.[1]),"type": "Integer"}
     msg["date_time"]={"value": data.date_time,"type": "Text"}
     msg["temp_tool1_actual"]={"value": float(data.temp_tool1_actual),"type": "Number"}
     msg["temp_tool2_actual"]={"value": float(data.temp_tool2_actual),"type": "Number"}
@@ -101,17 +91,8 @@ def callback(data):
     client.updateEntity(entity,msg)
 
 def listener():
-
-    # In ROS, nodes are uniquely named. If two nodes with the same
-    # name are launched, the previous one is kicked off. The
-    # anonymous=True flag means that rospy will choose a unique
-    # name for our 'listener' node so that multiple listeners can
-    # run simultaneously.
     rospy.init_node('tsk_listener', anonymous=True)
-
     rospy.Subscriber("printer3d", PrinterState, callback)
-
-    # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
 
 if __name__ == '__main__':
@@ -128,8 +109,6 @@ if __name__ == '__main__':
         sys.exit()
 
     head = {"Content-Type": "application/json"}
-    #host = "192.168.1.103"
-    #port = 1026
     entity= '3dprinter1'
     print("Connection to the server ", host, " on the port ", port)
     client = OrionClient(host, port)

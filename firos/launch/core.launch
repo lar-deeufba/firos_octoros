@@ -1,0 +1,6 @@
+<launch>
+
+    <!-- Run our interface with the 3DPrinter -->
+    <node pkg="firos" type="core.py" name="firos_core" output="screen"/>
+
+</launch>
