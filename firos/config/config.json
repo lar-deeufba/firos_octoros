@@ -1,0 +1,26 @@
+{
+  "environment": "local",
+
+
+  "local": {
+    "server": {
+        "port": 10100
+    },
+    "contextbroker": {
+        "address"   : "150.162.6.64",
+        "port"      : 1026,
+        "subscription": {
+          "throttling": "PT0S",
+          "subscription_length": "P1D",
+          "subscription_refresh_delay": 0.5
+        }
+    },
+    "log_level": "INFO",
+    "interface": "wlp3s0",
+    "map_server_port": 10101,
+    "rosbridge_port": 9090
+  }
+
+ 
+
+}

@@ -1,0 +1,10 @@
+{
+    "turtle\\w+": {
+        "publisher": ["cmd_vel"],
+        "subscriber": ["pose"]
+    },
+    "\\w+bot\\w*": {
+        "publisher": [".*cmd_vel.*", ".*move_base/goal.*"],
+        "subscriber": []
+    }
+}
