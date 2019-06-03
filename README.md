@@ -1,5 +1,18 @@
 ## OctoROS-FIROS Interface
-This provides the functional interface with OctoROS and FIROS. The environment that it has been tested is:
+This provides the functional interface with OctoROS and FIROS.
+
+### Setup
+
+**Before you proceed with any of these instructions make sure to go individually to each folder (``` firos ``` and ``` octoROS ```) and follow the installation and test instructions!**
+
+Make sure to clone everything to your workspace, supposing it's ``` catkin_ws ```. Go to the root of your ``` catkin_ws ``` then make it:
+- ``` $ cd ~/catkin_ws ```
+
+- ``` $ catkin_make ```
+
+Now source your workspace:
+
+- ``` $ source devel/setup.bash ```
 
 
 ### Usage
