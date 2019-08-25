@@ -1,11 +1,6 @@
 <launch>
 
-
     <!-- Run our interface with the 3DPrinter -->
-    <node pkg="octo_ros" type="octoROS.py" name="printerWatcher" output="screen" cwd="node" >
-         
-         <!-- Sends the file to the rosparam server, our Python script will retrieve it. -->
-         <!--  <param name="file_name" value="$(arg arg1)" /> -->
-    </node>
+    <node pkg="octo_ros" type="octoROS.py" name="printerWatcher" output="screen" cwd="node" />
 
 </launch>

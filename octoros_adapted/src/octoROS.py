@@ -16,7 +16,8 @@ import messenger
 counter = 0
 
 class RosInterface(object):
-    def __init__(self, fileToPrint="testfile"):
+    def __init__(self, fileToPrint):
+        rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
         self.extension = ".gcode"
         self.print_pub = rospy.Publisher('printer3d', PrinterState, queue_size=100)
         self.printFinished_pub = rospy.Publisher('printer3d/finishedPrinting', Bool, queue_size=10)
@@ -133,15 +134,11 @@ class RosInterface(object):
         self.printFinished_pub.publish(True)
 
 
-def main(args):
-    # ROS was not catching interrupt exceptions, so I had to disable signals and use the KeyboardInterrupt exception
-    rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
-    interf = RosInterface()
-
-
-if __name__ == '__main__':
-    try:
-        main(sys.argv)
-    except KeyboardInterrupt:
-        print("Shutting down and cancelling printing...")
-        messenger.cancelPrinting()
+#if __name__ == '__main__':
+#    try:
+        #main(sys.argv)
+        #rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
+        #interf = RosInterface()
+##    except KeyboardInterrupt:
+ #       print("Shutting down and cancelling printing...")
+ #       messenger.cancelPrinting()
