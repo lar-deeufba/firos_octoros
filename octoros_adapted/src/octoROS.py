@@ -10,6 +10,7 @@ import sys
 import datetime
 import rospy
 import actionlib
+import requests
 from std_msgs.msg import Bool, String
 from octo_ros.msg import PrinterState, PrintPartAction
 import messenger
@@ -30,9 +31,14 @@ class RosInterface(object):
 
     def getFileCallback(self, goal):
         """ Waits for the file name from the action client and then calls the addExtension function """
-        print("Estamos no callback")
         # Extract just the content from the goal
         fileToPrint = goal.file_to_print
+        self.printerServer.set_succeeded()
+        self.addExtension(fileToPrint)
+
+    def addExtension(self, fileToPrint):
+        """ On the Server one should provide only the file name without the extension  """
+        fileToPrint = fileToPrint + self.extension
         self.searchFile(fileToPrint)
 
     def searchFile(self, fileToPrint):
@@ -45,7 +51,7 @@ class RosInterface(object):
         for file in files:
             if file == fileToPrint:
                 rospy.loginfo("---- Sending requested file to OctoPrint ----")
-                self.addExtension(fileToPrint)
+                self.printPartAndGetStatus(fileToPrint)
             elif file.endswith(self.extension):
                 gcode_files.append(file)
         if file != fileToPrint:
@@ -54,14 +60,7 @@ class RosInterface(object):
             rospy.logwarn("Files with the extension .gcode that have been found: ")
             for i in range(len(gcode_files)):
                 print gcode_files[i]
-            # -1 is a flag for not founding any file with the given name.
-        rospy.logwarn("Could not send the file to the printer, shutting down...")
-        sys.exit()
-
-    def addExtension(self, fileToPrint):
-        """ On the Server one should provide only the file name without the extension """
-        fileToPrint = fileToPrint + self.extension
-        self.printPartAndGetStatus(fileToPrint)    
+            # TODO: FAZER ALGO PRA ESPERAR OUTRO GOAL
 
     def getDateTime(self):
         """ Get the actual date and time. """
@@ -89,8 +88,7 @@ class RosInterface(object):
         """ Sends command to print the wished part and sends all the data retrieved from the printer to ROS """
         try:
             printing = messenger.printModel(fileToPrint)
-        except(AttributeError):
-                sys.exit()
+        except(AttributeError, requests.exceptions.RequestException):
                 rospy.loginfo("Printer not connected to the OctoPrint server.")
                 rospy.is_shutdown()
         bootString = "Starting to print model %s" %fileToPrint 
@@ -144,6 +142,7 @@ if __name__ == '__main__':
         #main(sys.argv)
         #rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
         interf = RosInterface()
+        rospy.spin()
     except:
         print("Shutting down and cancelling printing...")
         messenger.cancelPrinting()
