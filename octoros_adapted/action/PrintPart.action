@@ -1,0 +1,8 @@
+# goal, in this case the name of the file to be printed
+string file_to_print
+---
+# result, if the printer receives the file or not
+bool file_received
+---
+# feedback, gets the progress from the printing process
+float32 percentage
