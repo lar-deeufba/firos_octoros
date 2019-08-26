@@ -9,33 +9,30 @@ import os
 import sys
 import datetime
 import rospy
+import actionlib
 from std_msgs.msg import Bool, String
-from octo_ros.msg import PrinterState
+from octo_ros.msg import PrinterState, PrintPartAction
 import messenger
 
 counter = 0
 
 class RosInterface(object):
-    def __init__(self, fileToPrint):
+    def __init__(self):
         rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
+        rospy.loginfo("---- OctoROS Initialized! ----")
         self.extension = ".gcode"
         self.print_pub = rospy.Publisher('printer3d', PrinterState, queue_size=100)
         self.printFinished_pub = rospy.Publisher('printer3d/finishedPrinting', Bool, queue_size=10)
+        # Starts/sets up the Action server for our 3D Printer
+        self.printerServer = actionlib.SimpleActionServer('printer_3D_server', PrintPartAction, self.getFileCallback, False)
+        self.printerServer.start()
         self.rate = rospy.Rate(0.1)  # 0.1 hz
-        rospy.loginfo("---- OctoROS Initialized! ----")
-        fileToPrint = self.addExtension(fileToPrint)
-	
-        self.fileToPrint = self.searchFile(fileToPrint)
-        if self.fileToPrint != -1:
-            rospy.loginfo("---- Sending requested file to OctoPrint ----")
-            self.printPartAndGetStatus(self.fileToPrint)
-        else:
-            rospy.logwarn("Could not send the file to the printer, shutting down...")
 
-    def addExtension(self, fileToPrint):
-        """ On the Server one should provide only the file name without the extension """
-        fileToPrint = fileToPrint + self.extension
-        return fileToPrint
+    def getFileCallback(self, goal):
+        """ Waits for the file name from the action client and then calls the addExtension function """
+        print("Estamos no callback")
+        print(goal)
+        self.searchFile(goal)
 
     def searchFile(self, fileToPrint):
         """ Searches for files with extension .gcode.
@@ -46,7 +43,8 @@ class RosInterface(object):
         rospy.loginfo("---- Searching for requested file ----")
         for file in files:
             if file == fileToPrint:
-                return fileToPrint
+                rospy.loginfo("---- Sending requested file to OctoPrint ----")
+                self.addExtension(fileToPrint)
             elif file.endswith(self.extension):
                 gcode_files.append(file)
         if file != fileToPrint:
@@ -56,7 +54,13 @@ class RosInterface(object):
             for i in range(len(gcode_files)):
                 print gcode_files[i]
             # -1 is a flag for not founding any file with the given name.
-            return -1
+        rospy.logwarn("Could not send the file to the printer, shutting down...")
+        sys.exit()
+
+    def addExtension(self, fileToPrint):
+        """ On the Server one should provide only the file name without the extension """
+        fileToPrint = fileToPrint + self.extension
+        self.printPartAndGetStatus(self.fileToPrint)
 
     def getDateTime(self):
         """ Get the actual date and time. """
@@ -134,11 +138,11 @@ class RosInterface(object):
         self.printFinished_pub.publish(True)
 
 
-#if __name__ == '__main__':
-#    try:
+if __name__ == '__main__':
+    try:
         #main(sys.argv)
         #rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
-        #interf = RosInterface()
-##    except KeyboardInterrupt:
- #       print("Shutting down and cancelling printing...")
- #       messenger.cancelPrinting()
+        interf = RosInterface()
+    except KeyboardInterrupt:
+        print("Shutting down and cancelling printing...")
+        messenger.cancelPrinting()
