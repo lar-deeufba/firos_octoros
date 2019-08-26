@@ -31,13 +31,14 @@ class RosInterface(object):
     def getFileCallback(self, goal):
         """ Waits for the file name from the action client and then calls the addExtension function """
         print("Estamos no callback")
-        print(goal)
-        self.searchFile(goal)
+        # Extract just the content from the goal
+        fileToPrint = goal.file_to_print
+        self.searchFile(fileToPrint)
 
     def searchFile(self, fileToPrint):
         """ Searches for files with extension .gcode.
         NOTE: This works only when using roslaunch because roslaunch points to the /src directory directly, while running with
-        rosrun runs the script locally. """
+        rosrun runs the script locally. Because of the cwd="node" on the launch file """
         files = os.listdir(".")
         gcode_files = []
         rospy.loginfo("---- Searching for requested file ----")
@@ -60,7 +61,7 @@ class RosInterface(object):
     def addExtension(self, fileToPrint):
         """ On the Server one should provide only the file name without the extension """
         fileToPrint = fileToPrint + self.extension
-        self.printPartAndGetStatus(self.fileToPrint)
+        self.printPartAndGetStatus(fileToPrint)    
 
     def getDateTime(self):
         """ Get the actual date and time. """
@@ -143,6 +144,6 @@ if __name__ == '__main__':
         #main(sys.argv)
         #rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
         interf = RosInterface()
-    except KeyboardInterrupt:
+    except:
         print("Shutting down and cancelling printing...")
         messenger.cancelPrinting()
