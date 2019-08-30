@@ -56,13 +56,13 @@ In case the printer you're using is a MakerBot, then you need to install the GPX
 
 ## Installing
 
-This project should be run from source, to do so just go to your ROS workspace (supposing is called ``` catkin_ws ```):
+This project should be run from source, to do so just go to your ROS workspace (supposing it's called ``` catkin_ws ```):
 
 ``` $ cd ~/catkin_ws/src ```
 
 And clone it with: 
 
-``` $ git clone https://github.com/hpoleselo/octoROS.git```
+``` $ git clone https://github.com/lar-deeufba/firos_octoros.git```
 
 Tether octoROS with your catkin workspace:
 
@@ -75,12 +75,6 @@ Make ``` octoROS.py ``` executable so ROS can identify it:
 ``` $ roscd octo_ros/src ```
 
 ``` $ chmod +x octoROS.py ```
-
-Set the command to PATH so we can easily execute ``` print_file.sh``` from any directory:
-
-``` $ cd ~/ ```
-
-``` $ echo PATH=$PATH:~/catkin_ws/src/octoROS/src >> .bashrc  ```
 
 Add small function to open the port and run the OctoPrint server at once:
 
@@ -97,16 +91,11 @@ First run the Octoprint server along with opening the port for the printer (MAKE
 
 Open up another terminal and send the model you want to print with the following command:
 
-``` $ print_file.sh YOURMODEL.gcode ```
+``` $ roslaunch print_part_skill_server run.launch ```
 
 The output should be like this:
 ``` 
 [INFO] [1563900881.544640]: ---- OctoROS Initialized! ----
-[INFO] [1563900881.545309]: ---- Searching for requested file ----
-[INFO] [1563900881.548957]: ---- Sending requested file to OctoPrint ------
-[INFO] [1563900881.594716]: Starting to print model..
-[INFO] [1563900881.608451]: Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.
-[INFO]: Checking for a second extruder...
 ```
 
 Go to another terminal and
