@@ -21,7 +21,6 @@ class RosInterface(object):
     def __init__(self):
         rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
         rospy.loginfo("---- OctoROS Initialized! ----")
-        self.extension = ".gcode"
         self.print_pub = rospy.Publisher('printer3d', PrinterState, queue_size=100)
         self.printFinished_pub = rospy.Publisher('printer3d/finishedPrinting', Bool, queue_size=10)
         # Starts/sets up the Action server for our 3D Printer
@@ -37,8 +36,9 @@ class RosInterface(object):
         self.addExtension(fileToPrint)
 
     def addExtension(self, fileToPrint):
-        """ On the Server one should provide only the file name without the extension  """
-        fileToPrint = fileToPrint + self.extension
+        """ Adds .gcode extension to the wished file, because on the Action Client one should provide only the file name without the extension """
+        extension = ".gcode"
+        fileToPrint = fileToPrint + extension
         self.searchFile(fileToPrint)
 
     def searchFile(self, fileToPrint):
@@ -52,9 +52,11 @@ class RosInterface(object):
             if file == fileToPrint:
                 rospy.loginfo("---- Sending requested file to OctoPrint ----")
                 self.printPartAndGetStatus(fileToPrint)
+                # If the file has been found we exit this function
+                return 0
             elif file.endswith(self.extension):
                 gcode_files.append(file)
-        if file != fileToPrint:
+        if file != fileToPrint:    
             notFoundString = "Requested file: %s not found in the package /src directory" %fileToPrint
             rospy.logwarn(notFoundString)
             rospy.logwarn("Files with the extension .gcode that have been found: ")
@@ -90,6 +92,7 @@ class RosInterface(object):
             printing = messenger.printModel(fileToPrint)
             #create condition to rate if we re connected and then set the flag
             #connectedToServer = True
+
         except(AttributeError, requests.exceptions.RequestException):
                 rospy.loginfo("Printer not connected to the OctoPrint server.")
 
@@ -97,7 +100,7 @@ class RosInterface(object):
             bootString = "Starting to print model %s" %fileToPrint 
             rospy.loginfo(bootString) 
 
-            # Temporary, but disregarding some variables
+            # Just retrieving progress
             progress, _, _, _ = messenger.printingProgressTracking()
             rospy.loginfo("Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.")
             while progress < 100 and not rospy.is_shutdown():
@@ -113,7 +116,7 @@ class RosInterface(object):
                     if timeElapsed == None:
                         timeElapsed = 0
 
-                    # Encapsulate all the data
+                    # Encapsulate all the data to send to the publisher
                     pstate = PrinterState()
                     pstate.timestamp = ts
                     pstate.date_time = date_time
