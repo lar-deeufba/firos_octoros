@@ -37,14 +37,15 @@ class RosInterface(object):
 
     def addExtension(self, fileToPrint):
         """ Adds .gcode extension to the wished file, because on the Action Client one should provide only the file name without the extension """
-        extension = ".gcode"
-        fileToPrint = fileToPrint + extension
+        self.extension = ".gcode"
+        fileToPrint = fileToPrint + self.extension
         self.searchFile(fileToPrint)
 
     def searchFile(self, fileToPrint):
         """ Searches for files with extension .gcode.
         NOTE: This works only when using roslaunch because roslaunch points to the /src directory directly, while running with
         rosrun runs the script locally. Because of the cwd="node" on the launch file """
+        
         files = os.listdir(".")
         gcode_files = []
         rospy.loginfo("---- Searching for requested file ----")
@@ -91,7 +92,7 @@ class RosInterface(object):
         try:
             printing = messenger.printModel(fileToPrint)
             #create condition to rate if we re connected and then set the flag
-            #connectedToServer = True
+            connectedToServer = True
 
         except(AttributeError, requests.exceptions.RequestException):
                 rospy.loginfo("Printer not connected to the OctoPrint server.")
@@ -111,7 +112,7 @@ class RosInterface(object):
                     # Retrieving all data
                     bedTempA, bedTempT, tool0TempA, tool0TempT, state, tool1TempA, tool1TempT = messenger.getprinterInfo()
                     date_time = self.getDateTime()
-                    ts = self.countTimeStamp()
+                    ts = self.countTimeStamp()  
                     timeElapsed = self.countTime(ts)
                     if timeElapsed == None:
                         timeElapsed = 0
