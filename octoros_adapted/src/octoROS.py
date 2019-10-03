@@ -19,7 +19,8 @@ counter = 0
 
 class RosInterface(object):
     def __init__(self):
-        rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
+        rospy.init_node('printerWatcher', anonymous=True)
+        #rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
         rospy.loginfo("---- OctoROS Initialized! ----")
         self.print_pub = rospy.Publisher('printer3d', PrinterState, queue_size=100)
         self.printFinished_pub = rospy.Publisher('printer3d/finishedPrinting', Bool, queue_size=10)
@@ -30,7 +31,7 @@ class RosInterface(object):
 
     def getFileCallback(self, goal):
         """ Waits for the file name from the action client and then calls the addExtension function """
-        # Extract just the content from the goal
+        # Extracts just the content from the goal
         fileToPrint = goal.file_to_print
         self.printerServer.set_succeeded()
         self.addExtension(fileToPrint)
@@ -62,7 +63,7 @@ class RosInterface(object):
             rospy.logwarn(notFoundString)
             rospy.logwarn("Files with the extension .gcode that have been found: ")
             for i in range(len(gcode_files)):
-                print gcode_files[i]
+                print(gcode_files[i])
 
     def getDateTime(self):
         """ Get the actual date and time. """
@@ -91,58 +92,61 @@ class RosInterface(object):
         connectedToServer = False
         try:
             printing = messenger.printModel(fileToPrint)
-            #create condition to rate if we re connected and then set the flag
             connectedToServer = True
+            #print("esperamos que ele nao printa")
 
-        except(AttributeError, requests.exceptions.RequestException):
-                rospy.loginfo("Printer not connected to the OctoPrint server.")
+        except(AttributeError, requests.exceptions.RequestException, requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
+            rospy.loginfo("Printer not connected to the OctoPrint server.")
+            sys.exit()
 
         if connectedToServer:
-            bootString = "Starting to print model %s" %fileToPrint 
-            rospy.loginfo(bootString) 
+                bootString = "Starting to print model %s" %fileToPrint 
+                rospy.loginfo(bootString) 
 
-            # Just retrieving progress
-            progress, _, _, _ = messenger.printingProgressTracking()
-            rospy.loginfo("Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.")
-            while progress < 100 and not rospy.is_shutdown():
-                # Update progress and get all the remaining data
-                progress, printingTimeLeft, fileName, fileSize = messenger.printingProgressTracking()
-                
-                try:
-                    # Retrieving all data
-                    bedTempA, bedTempT, tool0TempA, tool0TempT, state, tool1TempA, tool1TempT = messenger.getprinterInfo()
-                    date_time = self.getDateTime()
-                    ts = self.countTimeStamp()  
-                    timeElapsed = self.countTime(ts)
-                    if timeElapsed == None:
-                        timeElapsed = 0
+                # Just retrieving progress
+                progress, _, _, _ = messenger.printingProgressTracking()
+                rospy.loginfo("Started retrieving data from 3D Printer. Hear to the topic if you want to see the streamed data.")
+                while progress < 100 and not rospy.is_shutdown():
+                    # Update progress and get all the remaining data
+                    progress, printingTimeLeft, fileName, fileSize = messenger.printingProgressTracking()
+                    
+                    try:
+                        # Retrieving all data
+                        bedTempA, bedTempT, tool0TempA, tool0TempT, state, tool1TempA, tool1TempT = messenger.getprinterInfo()
+                        date_time = self.getDateTime()
+                        ts = self.countTimeStamp()  
+                        timeElapsed = self.countTime(ts)
+                        if timeElapsed == None:
+                            timeElapsed = 0
 
-                    # Encapsulate all the data to send to the publisher
-                    pstate = PrinterState()
-                    pstate.timestamp = ts
-                    pstate.date_time = date_time
-                    pstate.temp_tool1_actual = tool0TempA
-                    pstate.temp_tool2_actual = tool1TempA
-                    pstate.temp_bed_actual = bedTempA
-                    pstate.file_name = fileName
-                    pstate.file_size = fileSize
-                    pstate.printer3d_state = state
-                    pstate.progress = progress
-                    pstate.time_elapsed = timeElapsed
-                    pstate.time_left = printingTimeLeft
-                    pstate.temp_tool1_goal = tool0TempT
-                    pstate.temp_tool2_goal = tool1TempT
-                    pstate.temp_bed_goal = bedTempT
-                    self.print_pub.publish(pstate)
-                    self.rate.sleep()
-                except(ValueError,UnboundLocalError):
-                    rospy.logerr("Not connected to the printer, check if the USB cable is connected and if the port is enabled.")
-                    sys.exit()
+                        # Encapsulate all the data to send to the publisher
+                        pstate = PrinterState()
+                        pstate.timestamp = ts
+                        pstate.date_time = date_time
+                        pstate.temp_tool1_actual = tool0TempA
+                        pstate.temp_tool2_actual = tool1TempA
+                        pstate.temp_bed_actual = bedTempA
+                        pstate.file_name = fileName
+                        pstate.file_size = fileSize
+                        pstate.printer3d_state = state
+                        pstate.progress = progress
+                        pstate.time_elapsed = timeElapsed
+                        pstate.time_left = printingTimeLeft
+                        pstate.temp_tool1_goal = tool0TempT
+                        pstate.temp_tool2_goal = tool1TempT
+                        pstate.temp_bed_goal = bedTempT
+                        self.print_pub.publish(pstate)
+                        self.rate.sleep()
+                    except(ValueError,UnboundLocalError):
+                        rospy.logerr("Not connected to the printer, check if the USB cable is connected and if the port is enabled.")
+                        sys.exit()
         else:
             return None
 
         rospy.loginfo("Sucessful printing.")
         self.printFinished_pub.publish(True)
+        self.printerServer.set_succeeded()
+
 
 
 if __name__ == '__main__':
@@ -154,3 +158,4 @@ if __name__ == '__main__':
     except:
         print("Shutting down and cancelling printing...")
         messenger.cancelPrinting()
+

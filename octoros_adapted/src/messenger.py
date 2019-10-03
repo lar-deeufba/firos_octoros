@@ -33,6 +33,8 @@ def printModel(modelName):
         return requests.post(url, json=printData, headers=standardHeader, timeout=5)
     except(requests.exceptions.RequestException):
         print("[ERROR] Not connected to OctoPrint Server. Check your connection with the Server!")
+        # Treated this since OctoROS was bleeding while waiting for the skill goal when not connected to the OctPrint server
+        sys.exit()
 
 def cancelPrinting():
     jsonData = {'command':'cancel'}
@@ -206,3 +208,4 @@ def _url(path):
     """ Function to pass the URL """
     octoAddress = octoIP + octoPort + '/api/'
     return octoAddress + path
+
