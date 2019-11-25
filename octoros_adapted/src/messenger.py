@@ -208,4 +208,3 @@ def _url(path):
     """ Function to pass the URL """
     octoAddress = octoIP + octoPort + '/api/'
     return octoAddress + path
-
