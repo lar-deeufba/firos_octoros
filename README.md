@@ -18,21 +18,21 @@ Now source your workspace:
 ### Usage
 Follow the installation instructions separately for each folder and when everything is done follow the following steps to print a part and send the data to the broker:
 
-1. Run the Octoprint interface:
+Run the Octoprint interface:
 
-	``` $ run_octoprint ```
+``` $ run_octoprint ```
 		
-2. Print the part using OctoROS:
+Print the part using OctoROS:
 
  ``` $ print_file.sh YOURMODEL.gcode```
 
-3. Launch FIROS:
+Launch FIROS:
 
  ``` $ roslaunch firos firos.launch ```
 
-4. To check if OctoROS is retrieving the data from the printer, do the following:
+To check if OctoROS is retrieving the data from the printer, do the following:
 
-	``` $ rostopic echo /printer3d ```
+``` $ rostopic echo /printer3d ```
 
 ### Expected result
 
