@@ -32,17 +32,17 @@ Now we can install OctoPrint, the detailed instructions are available at https:/
 5. Now you should verify your installation opening a web browser and going to http://localhost:5000
 6. If everything went right you should see the OctoPrint home screen  
 
-PS: In case you encountered a conflict error with PyYAML on step ```3.``` make sure you remove the previous installation from PyYAML from your computer by doing: 
+PS: In case you encountered a conflict error with PyYAML or any other package on step ```3.``` make sure you remove the previous installation from PyYAML/any other package from your computer by doing: 
 
- ```$ sudo rm -rf /usr/local/lib/python2.7/dist-packages/yaml ```
+ ```$ sudo rm -rf /usr/local/lib/python2.7/dist-packages/yaml ``` or ```$ sudo rm -rf /usr/local/lib/python2.7/dist-packages/THENAMEOFTHEPACKAGE ```
 
  and
 
-```$ sudo rm -rf /usr/lib/python2.7/dist-packages/yaml ```
+```$ sudo rm -rf /usr/lib/python2.7/dist-packages/yaml ``` or ```$ sudo rm -rf /usr/lib/python2.7/dist-packages/THENAMEOFTHEPACKAGE ``` 
 
 And then calling the setup file again to install all the dependencies but ignoring PyYAML (this is necessary because PyYAML is usually not completely deleted.) **Note that this would work for any other package from Python that is conflicting with the installation, i.e we could replace PyYAML for the package causing you trouble.**
 
- ```$ sudo pip2.7 install . --ignore-installed ${PyYAML} ``` 
+ ```$ sudo pip2.7 install . --ignore-installed ${PyYAML} ``` or ```$ sudo pip2.7 install . --ignore-installed ${THENAMEOFTHEPACKAGE} ```
 
 **_By entering the OctoPrint home screen for the first time you should setup your 3D Printer using the wizard from Octoprint, make sure to setup it correctly._** Don't forget to include the baudrate from your 3D Printer and enable the API Key **(respectively copying it)**.
 
@@ -54,7 +54,7 @@ In case the printer you're using is a MakerBot, then you need to install the GPX
 3. After GPX is installed, make sure to check in the plugin's list if the GPX plugin is enabled
 4. Make sure to configure correctly in the GPX plugin all the settings for your 3D printer (machine, gcode flavor and other settings)
 
-## Installing
+## Installation
 
 This project should be run from source, to do so just go to your ROS workspace (supposing it's called ``` catkin_ws ```):
 
@@ -89,40 +89,23 @@ First run the Octoprint server along with opening the port for the printer (MAKE
 
 ``` $ run_octoprint ```
 
-Open up another terminal and send the model you want to print with the following command:
+Check if OctoROS has been succesfully installed by doing:
 
-``` $ roslaunch print_part_skill_server run.launch ```
+``` $ roslaunch octo_ros connect_to_printer.launch ```
 
-The output should be like this:
-``` 
-[INFO] [1563900881.544640]: ---- OctoROS Initialized! ----
+The output should be like this (meaning that OctoROS Server is waiting for a goal (part to be printed)):
+
+``` started core service [/rosout]
+    process[printerWatcher-2]: started with pid [11920]
+    /usr/local/lib/python2.7/dist-packages/requests/__init__.py:83: RequestsDependencyWarning: Old version of cryptography ([1, 2, 3]) may cause slowdown.
+    warnings.warn(warning, RequestsDependencyWarning)
+    [INFO] [1575918920.968175]: ---- OctoROS Initialized! ----
 ```
 
-Go to another terminal and
+To integrate the Task Manager with OctoROS, please visit this page and follow the instructions from ``` README ```:
 
-``` $ rostopic echo /printer3d ```
+https://gitlab.com/hpoleselo/printpartskill
 
-The output should be like this:
-```
-ricky@c-137:~$ rostopic echo /printer3d
-timestamp: 5
-date_time: "2019-07-23 13:55:21.690592"
-temp_tool1_actual: 25.0
-temp_tool2_actual: 26.0
-temp_bed_actual: 28.0
-file_size: 1052938
-file_name: "part2Rep2x.gcode"
-printer3d_state: "Bed heating"
-progress: 0.169240728021
-time_left: 1059
-time_elapsed: 40
-temp_tool1_goal: 0.0
-temp_tool2_goal: 0.0
-temp_bed_goal: 110.0
----
-```
-
-So it will start printing the model and outputting the progress and some printer measurements to the ```/printer3d``` ROS topic until the printing is finished. When the printing is done, a flag will be set, i.e a boolean will be sent to ```printer3d/finishedPrinting```.
 
 ## Authors
 
