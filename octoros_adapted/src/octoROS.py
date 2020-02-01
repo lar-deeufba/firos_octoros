@@ -20,7 +20,7 @@ from octo_ros.msg import PrinterState, PrintPartAction
 counter = 0
 
 class RosInterface(object):
-    def __init__(self):        
+    def __init__(self):
         rospy.init_node('printerWatcher', anonymous=True, disable_signals=True)
         rospy.loginfo("---- OctoROS Initialized! ----")
         self.print_pub = rospy.Publisher('printer3d1/printer3d', PrinterState, queue_size=100)
@@ -47,7 +47,7 @@ class RosInterface(object):
         """ Searches for files with extension .gcode.
         NOTE: This works only when using roslaunch because roslaunch points to the /src directory directly, while running with
         rosrun runs the script locally. Because of the cwd="node" on the launch file """
-        
+
         files = os.listdir(".")
         gcode_files = []
         rospy.loginfo("---- Searching for requested file ----")
@@ -59,7 +59,7 @@ class RosInterface(object):
                 return 0
             elif file.endswith(self.extension):
                 gcode_files.append(file)
-        if file != fileToPrint:    
+        if file != fileToPrint:
             notFoundString = "Requested file: %s not found in the package /src directory" %fileToPrint
             rospy.logwarn(notFoundString)
             rospy.logwarn("Files with the extension .gcode that have been found: ")
@@ -101,8 +101,8 @@ class RosInterface(object):
             sys.exit()
 
         if connectedToServer:
-                bootString = "Starting to print model %s" %fileToPrint 
-                rospy.loginfo(bootString) 
+                bootString = "Starting to print model %s" %fileToPrint
+                rospy.loginfo(bootString)
 
                 # Just retrieving progress
                 progress, _, _, _ = messenger.printingProgressTracking()
@@ -112,15 +112,27 @@ class RosInterface(object):
                     while progress < 100 and not rospy.is_shutdown():
                         # Update progress and get all the remaining data
                         progress, printingTimeLeft, fileName, fileSize = messenger.printingProgressTracking()
-                        
+
                         try:
                             # Retrieving all data
                             bedTempA, bedTempT, tool0TempA, tool0TempT, state, tool1TempA, tool1TempT = messenger.getprinterInfo()
                             date_time = self.getDateTime()
-                            ts = self.countTimeStamp()  
+                            ts = self.countTimeStamp()
                             timeElapsed = self.countTime(ts)
                             if timeElapsed == None:
                                 timeElapsed = 0
+
+                            # Change made to work with the Graph fom Grafana, since the division by 0 is invalid
+                            elif tool0TempT == 0.0:
+                                tool0TempT = 1.0
+                            elif bedTempT == 0.0:
+                                bedTempT = 1.0
+
+                            # Check if this is really needed
+                            #elif tool1TempT == 0.0:
+                            #    tool1TempT = 1.0
+                            #elif tool1TempA == 0.0:
+                            #    tool1TempA = 1.0
 
                             # Encapsulate all the data to send to the publisher
                             pstate = PrinterState()

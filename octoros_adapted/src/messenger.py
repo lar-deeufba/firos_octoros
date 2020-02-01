@@ -66,13 +66,13 @@ def modelSelection():
 def checkNoneFloat(data):
     # Function to check if the retrieved data is None
     if data == None:
-        data = 0.0
+        data = 1.0
     return data
 
 def checkNoneInteger(data):
     # Function to check if the retrieved data is None
     if data == None:
-        data = 0
+        data = 1
     return data
 
 def printingProgressTracking():
@@ -85,13 +85,13 @@ def printingProgressTracking():
 
     fileName = response.json()['job']['file']['name']
     fileName = str(fileName)
-    fileSize = response.json()['job']['file']['size']    
+    fileSize = response.json()['job']['file']['size']
     return progress, printTimeLeft, fileName, fileSize
 
 
 def rateState(isBedHeating, isToolHeating, isPrinting, isPaused, isReadyToPrint, isCancelled):
     """ Function that rates all the states from the printer and returns just one state to send xas a String
-    to ROS. Short: encapsulates all states in one function. This function is expandable, you can add more 
+    to ROS. Short: encapsulates all states in one function. This function is expandable, you can add more
     states to be rated."""
 
     if isPaused:
