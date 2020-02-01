@@ -1,3 +1,0 @@
-<launch>
-    <node pkg="firos" type="core.py" name="firos_interface"  output="screen"/>
-</launch>

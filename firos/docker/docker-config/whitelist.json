@@ -1,7 +1,0 @@
-{
-	"turtle1": {
-		"publisher": ["cmd_vel"],
-		"subscriber": ["pose"]
-	}
-
-}
