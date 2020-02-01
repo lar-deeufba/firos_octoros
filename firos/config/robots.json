@@ -1,0 +1,12 @@
+{
+
+    "printer3d1":{
+      "topics": {
+          "printer3d": {
+              "msg": "octo_ros.msg.PrinterState",
+              "type": "subscriber"
+          }
+        }
+    }
+
+}
